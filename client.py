@@ -13,7 +13,7 @@ def kb_client():
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
     socket.connect('tcp://'+server+':'+port)
-    socket.setsocketopt(zmq.SUBSCRIBE, b'')
+    socket.setsockopt(zmq.SUBSCRIBE, b'')
     while True:
         data = socket.recv()
         event = pickle.loads(data)
