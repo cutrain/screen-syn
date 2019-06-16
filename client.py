@@ -41,7 +41,7 @@ def solve_mouse(event, mouse_control):
             mouse_control.press(button)
             print('mouse press', button)
         else:
-            mouse.release(button)
+            mouse_control.release(button)
             print('mouse release', button)
     elif type_ == 'scroll':
         dx = event[5]
