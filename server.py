@@ -21,7 +21,7 @@ def kb_server():
         key_code = a.scan_code
         name = a.name
         event_type = a.event_type
-        message = pickle.dump(a)
+        message = pickle.dumps(a)
         print(a, key_code, name, event_type)
         socket.send(message)
         print('SEND', message)
@@ -29,7 +29,7 @@ def kb_server():
 
 if __name__ == "__main__":
     server_list = [kb_server]
-    args_list = [(,)]
+    args_list = [()]
     if len(server_list) != len(args_list):
         raise Exception("missing args for server")
     thread_list = []
@@ -40,15 +40,12 @@ if __name__ == "__main__":
             thread = threading.Thread(target=server, args=args)
             thread.daemon = True
             thread_list.append(thread)
+
         for thread in thread_list:
             thread.start()
         print("Server start")
         for thread in thread_list:
             thread.join()
     except KeyboardInterrupt:
-        thread_monitor = False
-        print("Server exiting, please wait")
-        for thread in thread_list:
-            thread.join()
-        print("Exit succeed")
+        print('exit')
 
