@@ -1,5 +1,6 @@
 server = '127.0.0.1'
-port = '8334'
+keyboard_port = '8334'
+mouse_port = '8335'
 
 import zmq
 import pickle
@@ -7,12 +8,13 @@ import threading
 import pyautogui
 import keyboard as kb
 from keyboard._keyboard_event import KEY_DOWN, KEY_UP
+from pynput import mouse
 
 def kb_client():
-    global server, port
+    global server, keyboard_port
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
-    socket.connect('tcp://'+server+':'+port)
+    socket.connect('tcp://'+server+':'+keyboard_port)
     socket.setsockopt(zmq.SUBSCRIBE, b'')
     while True:
         data = socket.recv()
@@ -20,10 +22,49 @@ def kb_client():
         key = event.scan_code or event.name
         kb.press(key) if event.event_type == KEY_DOWN else kb.release(key)
 
+def solve_mouse(event):
+    type_ = event[0]
+    x = event[1]
+    y = event[2]
+    xx = event[3]
+    yy = event[4]
+    screen_width, screen_height = pyautogui.size()
+    realx = x * screen_width // xx
+    realy = y * screen_height // yy
+    if type_ == 'move':
+        mouse.position = (realx, realy)
+        print('mouse move', realx, realy)
+    elif type_ == 'click':
+        button = event[5]
+        pressed = event[6]
+        if pressed:
+            mouse.press(button)
+            print('mouse press', button)
+        else:
+            mouse.release(button)
+            print('mouse release', button)
+    elif type_ == 'scroll':
+        dx = event[5]
+        dy = event[6]
+        mouse.scroll(dx, dy)
+        print('mouse scroll {},{}'.format(dx, dy))
+    else:
+        raise Exception("Unknown mouse event "+event[0])
+
+def mouse_client():
+    global server, mouse_port
+    context = zmq.Context()
+    socket = context.socket(zmq.SUB)
+    socket.connect('tcp://'+server+':'+mouse_port)
+    sokcet.setsockopt(zmq.SUBSCRIBE, b'')
+    while True:
+        data = socket.recv()
+        event = pickle.loads(data)
+        solve_mouse(event)
 
 if __name__ == '__main__':
-    client_list = [kb_client]
-    args_list = [()]
+    client_list = [kb_client, mouse_client]
+    args_list = [(), ()]
     if len(client_list) != len(args_list):
         raise Exception("missing args for client")
     thread_list = []
