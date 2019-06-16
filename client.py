@@ -22,7 +22,7 @@ def kb_client():
         key = event.scan_code or event.name
         kb.press(key) if event.event_type == KEY_DOWN else kb.release(key)
 
-def solve_mouse(event):
+def solve_mouse(event, mouse_control):
     type_ = event[0]
     x = event[1]
     y = event[2]
@@ -32,13 +32,13 @@ def solve_mouse(event):
     realx = x * screen_width // xx
     realy = y * screen_height // yy
     if type_ == 'move':
-        mouse.position = (realx, realy)
+        mouse_control.position = (realx, realy)
         print('mouse move', realx, realy)
     elif type_ == 'click':
         button = event[5]
         pressed = event[6]
         if pressed:
-            mouse.press(button)
+            mouse_control.press(button)
             print('mouse press', button)
         else:
             mouse.release(button)
@@ -46,7 +46,7 @@ def solve_mouse(event):
     elif type_ == 'scroll':
         dx = event[5]
         dy = event[6]
-        mouse.scroll(dx, dy)
+        mouse_control.scroll(dx, dy)
         print('mouse scroll {},{}'.format(dx, dy))
     else:
         raise Exception("Unknown mouse event "+event[0])
@@ -56,11 +56,12 @@ def mouse_client():
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
     socket.connect('tcp://'+server+':'+mouse_port)
-    sokcet.setsockopt(zmq.SUBSCRIBE, b'')
+    socket.setsockopt(zmq.SUBSCRIBE, b'')
+    mouse_control = mouse.Controller()
     while True:
         data = socket.recv()
         event = pickle.loads(data)
-        solve_mouse(event)
+        solve_mouse(event, mouse_control)
 
 if __name__ == '__main__':
     client_list = [kb_client, mouse_client]
