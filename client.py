@@ -31,9 +31,10 @@ def solve_mouse(event, mouse_control):
     screen_width, screen_height = pyautogui.size()
     realx = x * screen_width // xx
     realy = y * screen_height // yy
+    mouse_control.position = (realx, realy)
+    print('mouse at', realx, realy)
     if type_ == 'move':
-        mouse_control.position = (realx, realy)
-        print('mouse move', realx, realy)
+        print('mouse move only')
     elif type_ == 'click':
         button = event[5]
         pressed = event[6]

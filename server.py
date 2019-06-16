@@ -1,8 +1,6 @@
 keyboard_port = '8334'
 mouse_port = '8335'
 
-DEBUG = False
-
 import zmq
 import time
 import queue
@@ -34,40 +32,33 @@ def on_click(x, y, button, pressed, socket):
     print('{} at {}'.format('Pressed' if pressed else 'Released', (x, y)))
     screen_width, screen_height = pyautogui.size()
     message = pickle.dumps(('click', x, y, screen_width, screen_height, button, pressed))
-    if DEBUG:
-        with open('operation.pickle', 'wb+') as f:
-            f.write(message)
-    else:
-        socket.send(message)
+    socket.send(message)
     print('Send mouse click', message)
 
 def on_move(x, y, socket):
+    global move_time
+    if time.time() - move_time < 0.05:
+        return True
+    move_time = time.time()
     print('move to {}'.format((x, y)))
     screen_width, screen_height = pyautogui.size()
     message = pickle.dumps(('move', x, y, screen_width, screen_height))
-    if DEBUG:
-        with open('operation.pickle', 'wb+') as f:
-            f.write(message)
-    else:
-        socket.send(message)
+    socket.send(message)
     print('Send mouse move', message)
 
 def on_scroll(x, y, dx, dy, socket):
     print('scroll {} at {}'.format('down' if dy < 0 else 'up', (x, y)))
     screen_width, screen_height = pyautogui.size()
     message = pickle.dumps(('scroll', x, y, screen_width, screen_height, dx, dy))
-    if DEBUG:
-        with open('operation.pickle', 'wb+') as f:
-            f.write(message)
-    else:
-        socket.send(message)
+    socket.send(message)
     print('Send mouse scroll', message)
 
 def mouse_server():
-    global mouse_port
+    global mouse_port, move_time
     context = zmq.Context()
     socket = context.socket(zmq.PUB)
     socket.bind('tcp://*:'+mouse_port)
+    move_time = time.time()
     listener = mouse.Listener(
         on_move=lambda x,y:on_move(x,y,socket),
         on_click=lambda x,y,button,pressed:on_click(x,y,button,pressed,socket),
