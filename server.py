@@ -1,12 +1,12 @@
 port = '8334'
 
-import keyboard as kb
 import zmq
-import pyautogui
 import time
 import queue
 import pickle
 import threading
+import pyautogui
+import keyboard as kb
 
 
 def kb_server():
