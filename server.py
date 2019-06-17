@@ -9,6 +9,7 @@ import threading
 import pyautogui
 import keyboard as kb
 from pynput import mouse
+from pynput.mouse import Button
 
 
 def kb_server():
@@ -31,6 +32,14 @@ def kb_server():
 def on_click(x, y, button, pressed, socket):
     print('{} at {}'.format('Pressed' if pressed else 'Released', (x, y)))
     screen_width, screen_height = pyautogui.size()
+    if button == Button.left:
+        button = 'left'
+    elif button == Button.right:
+        button = 'right'
+    elif button == Button.middle:
+        button = 'middle'
+    else:
+        button = 'unknown'
     message = pickle.dumps(('click', x, y, screen_width, screen_height, button, pressed))
     socket.send(message)
     print('Send mouse click', message)

@@ -9,6 +9,7 @@ import pyautogui
 import keyboard as kb
 from keyboard._keyboard_event import KEY_DOWN, KEY_UP
 from pynput import mouse
+from pynput.mouse import Button
 
 def kb_client():
     global server, keyboard_port
@@ -37,6 +38,14 @@ def solve_mouse(event, mouse_control):
         print('mouse move only')
     elif type_ == 'click':
         button = event[5]
+        if button == 'left':
+            button = Button.left
+        elif button == 'right':
+            button = Button.right
+        elif button == 'middle':
+            button = Button.middle
+        else:
+            button = Button.unknown
         pressed = event[6]
         if pressed:
             mouse_control.press(button)
