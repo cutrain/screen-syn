@@ -7,9 +7,28 @@ import queue
 import pickle
 import threading
 import pyautogui
-import keyboard as kb
-from pynput import mouse
+from pynput import mouse, keyboard as kb
 from pynput.mouse import Button
+
+def on_press(key, socket):
+    try:
+        print('alphanumeric key {} pressed'.format(key.char))
+        message = pickle.dumps(('press', key))
+        socket.send(message)
+    except AttributeError:
+        print('special key {} pressed'.format(key))
+        message = pickle.dumps(('press', key))
+        socket.send(message)
+
+def on_release(key, socket):
+    try:
+        print('alphanumeric key {} release'.format(key.char))
+        message = pickle.dumps(('release', key))
+        socket.send(message)
+    except AttributeError:
+        print('special key {} release'.format(key))
+        message = pickle.dumps(('release', key))
+        socket.send(message)
 
 
 def kb_server():
@@ -18,16 +37,14 @@ def kb_server():
     context = zmq.Context()
     socket = context.socket(zmq.PUB)
     socket.bind('tcp://*:'+keyboard_port)
-    kb.start_recording(q)
-    while True:
-        a = q.get()
-        key_code = a.scan_code
-        name = a.name
-        event_type = a.event_type
-        message = pickle.dumps(a)
-        print(a, key_code, name, event_type)
-        socket.send(message)
-        print('Send keyboard', message)
+    listener = kb.Listener(
+        on_press=lambda key:on_press(key, socket),
+        on_release=lambda key:on_release(key, socket),
+    )
+    listener.daemon = True
+    listener.start()
+    listener.join()
+
 
 def on_click(x, y, button, pressed, socket):
     print('{} at {}'.format('Pressed' if pressed else 'Released', (x, y)))

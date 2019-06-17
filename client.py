@@ -6,10 +6,18 @@ import zmq
 import pickle
 import threading
 import pyautogui
-import keyboard as kb
-from keyboard._keyboard_event import KEY_DOWN, KEY_UP
-from pynput import mouse
+from pynput import mouse, keyboard as kb
 from pynput.mouse import Button
+
+def solve_keyboard(event, kb_control):
+    type_ = event[0]
+    key = event[1]
+    if type_ == 'press':
+        kb_control.press(key)
+    elif type_ == 'release':
+        kb_control.release(key)
+    else:
+        raise Exception("Unknown keyboard event" + event[0])
 
 def kb_client():
     global server, keyboard_port
@@ -17,11 +25,11 @@ def kb_client():
     socket = context.socket(zmq.SUB)
     socket.connect('tcp://'+server+':'+keyboard_port)
     socket.setsockopt(zmq.SUBSCRIBE, b'')
+    kb_control = kb.Controller()
     while True:
         data = socket.recv()
         event = pickle.loads(data)
-        key = event.scan_code or event.name
-        kb.press(key) if event.event_type == KEY_DOWN else kb.release(key)
+        solve_keyboard(event, kb_control)
 
 def solve_mouse(event, mouse_control):
     type_ = event[0]
