@@ -9,25 +9,26 @@ import threading
 import pyautogui
 from pynput import mouse, keyboard as kb
 from pynput.mouse import Button
+from pynput.keyboard import Key
 
 def on_press(key, socket):
     try:
         print('alphanumeric key {} pressed'.format(key.char))
-        message = pickle.dumps(('press', key))
+        message = pickle.dumps(('press', 'normal', key.char))
         socket.send(message)
     except AttributeError:
         print('special key {} pressed'.format(key))
-        message = pickle.dumps(('press', key))
+        message = pickle.dumps(('press', 'special', key))
         socket.send(message)
 
 def on_release(key, socket):
     try:
         print('alphanumeric key {} release'.format(key.char))
-        message = pickle.dumps(('release', key))
+        message = pickle.dumps(('release', 'normal', key.char))
         socket.send(message)
     except AttributeError:
         print('special key {} release'.format(key))
-        message = pickle.dumps(('release', key))
+        message = pickle.dumps(('release', 'special', key))
         socket.send(message)
 
 

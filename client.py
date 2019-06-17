@@ -8,16 +8,25 @@ import threading
 import pyautogui
 from pynput import mouse, keyboard as kb
 from pynput.mouse import Button
+from pynput.keyboard import Key
 
 def solve_keyboard(event, kb_control):
     type_ = event[0]
-    key = event[1]
+    key_type = event[1]
+    key = event[2]
+    if key_type == 'normal':
+        key = key
+    elif key_type == 'special':
+        key = Key[key]
+    else:
+        raise Exception("Unknown keyboard event, key type " + key_type)
+
     if type_ == 'press':
         kb_control.press(key)
     elif type_ == 'release':
         kb_control.release(key)
     else:
-        raise Exception("Unknown keyboard event" + event[0])
+        raise Exception("Unknown keyboard event, press type " + type_)
 
 def kb_client():
     global server, keyboard_port
