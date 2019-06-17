@@ -18,7 +18,7 @@ def on_press(key, socket):
         socket.send(message)
     except AttributeError:
         print('special key {} pressed'.format(key))
-        message = pickle.dumps(('press', 'special', key))
+        message = pickle.dumps(('press', 'special', key.name))
         socket.send(message)
 
 def on_release(key, socket):
@@ -28,7 +28,7 @@ def on_release(key, socket):
         socket.send(message)
     except AttributeError:
         print('special key {} release'.format(key))
-        message = pickle.dumps(('release', 'special', key))
+        message = pickle.dumps(('release', 'special', key.name))
         socket.send(message)
 
 
