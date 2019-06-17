@@ -64,7 +64,7 @@ def on_click(x, y, button, pressed, socket):
 
 def on_move(x, y, socket):
     global move_time
-    if time.time() - move_time < 0.05:
+    if time.time() - move_time < 0.03:
         return True
     move_time = time.time()
     print('move to {}'.format((x, y)))
