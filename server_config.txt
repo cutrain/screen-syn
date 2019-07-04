@@ -1,0 +1,7 @@
+monitor_keyboard=1
+monitor_mouse=1
+keyboard_port=8334
+mouse_port=8335
+log_level=debug
+interval=0.3
+appname=Õ®¥Ô–≈
