@@ -1,3 +1,4 @@
+import os
 import zmq
 import time
 import win32api
@@ -10,6 +11,9 @@ import pyautogui
 from pynput import mouse, keyboard as kb
 from pynput.mouse import Button
 from pynput.keyboard import Key
+
+mainpath = os.path.split(os.path.realpath(__file__))[0]
+os.chdir(mainpath)
 
 config_filename = 'server_config.txt'
 
@@ -33,10 +37,14 @@ def printlog(logfunc, s):
     logfunc(s)
 
 def load_config():
-    global config_filename, monitor_keyboard, monitor_mouse, keyboard_port, mouse_port, appname, log_level
+    global config_filename, monitor_keyboard, monitor_mouse, keyboard_port, mouse_port, appname, log_level, interval
     logger.info('start load config')
-    with open(config_filename, 'r') as f:
-        data = f.readlines()
+    try:
+        with open(config_filename, 'r') as f:
+            data = f.readlines()
+    except Exception as e:
+        printlog(logger.warning, "load config file error, using default")
+        data = []
     for line in data:
         config = line.strip()
         config = config.split('#')[0]
@@ -211,8 +219,14 @@ def mouse_server():
     except Exception as e:
         logger.exception(e)
 
+def ping(address):
+    return not os.system('ping %s -n 1' % (address,))
 
 if __name__ == "__main__":
+    if not ping('ping.cutrain.top'):
+        printlog(logger.error, "can not connect to network")
+        exit(0)
+
     try:
         load_config()
     except Exception as e:

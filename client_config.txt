@@ -1,0 +1,3 @@
+server_host=192.168.0.1
+keyboard_port=8334
+mouse_port=8335
