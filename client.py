@@ -80,6 +80,7 @@ def load_config():
 
 
 def solve_keyboard(event, kb_control):
+    printlog(logger.debug, 'get event {}'.format(event))
     type_ = event[0]
     key_type = event[1]
     key = event[2]
