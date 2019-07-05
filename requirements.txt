@@ -1,3 +1,4 @@
 pyautogui
 pynput
 zmq
+pywin32

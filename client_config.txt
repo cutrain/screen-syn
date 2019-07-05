@@ -1,3 +1,13 @@
-server_host=192.168.0.1
+# 井号后是注释，不会被读取
+
+# 主电脑的ip地址，需要修改
+server_ip=192.168.0.1
+
+# 键盘同步信号端口
 keyboard_port=8334
+
+# 鼠标同步信号端口
 mouse_port=8335
+
+# 日志级别，debug/info/warning/error 4个级别
+log_level=debug

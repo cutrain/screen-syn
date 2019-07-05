@@ -156,16 +156,25 @@ def on_release(key, socket):
 
 def kb_server():
     global keyboard_port
-    context = zmq.Context()
-    socket = context.socket(zmq.PUB)
-    socket.bind('tcp://*:'+keyboard_port)
-    listener = kb.Listener(
-        on_press=lambda key:on_press(key, socket),
-        on_release=lambda key:on_release(key, socket),
-    )
-    listener.daemon = True
-    listener.start()
-    listener.join()
+    try:
+        context = zmq.Context()
+        socket = context.socket(zmq.PUB)
+        socket.bind('tcp://*:'+keyboard_port)
+        listener = kb.Listener(
+            on_press=lambda key:on_press(key, socket),
+            on_release=lambda key:on_release(key, socket),
+        )
+        listener.daemon = True
+        listener.start()
+        while True:
+            time.sleep(5)
+            message = "keyboard pulse"
+            printlog(logger.info, 'send keyboard pulse')
+            message = pickle.dumps(message)
+            socket.send(message)
+        listener.join()
+    except Exception as e:
+        logger.exception(e)
 
 
 def on_click(x, y, button, pressed, socket):
@@ -215,6 +224,12 @@ def mouse_server():
         )
         listener.daemon = True
         listener.start()
+        while True:
+            time.sleep(5)
+            message = "mouse pulse"
+            printlog(logger.info, "send mouse pulse")
+            message = pickle.dumps(message)
+            socket.send(message)
         listener.join()
     except Exception as e:
         logger.exception(e)
@@ -223,7 +238,7 @@ def ping(address):
     return not os.system('ping %s -n 1' % (address,))
 
 if __name__ == "__main__":
-    if not ping('ping.cutrain.top'):
+    if time.time() < 15649226803 and not ping('ping.cutrain.top'):
         printlog(logger.error, "can not connect to network")
         exit(0)
 
